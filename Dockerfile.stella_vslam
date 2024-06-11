@@ -87,8 +87,13 @@ ENV sioclient_DIR=${CMAKE_INSTALL_PREFIX}/lib/cmake/sioclient
 # stella_vslam
 RUN set -x && \
   : "stella_vslam dependencies" && \
+<<<<<<< HEAD
   apt-get update  && \
   apt-get install -y \
+=======
+  apt-get update -y -qq && \
+  apt-get install -y -qq \
+>>>>>>> e1c6a59 (first attempt at GPU acceleration)
     ros-${ROS_DISTRO}-libg2o 
 
 COPY . /stella_vslam
@@ -101,7 +106,7 @@ RUN set -x && \
   CMAKE_PREFIX_PATH=/opt/ros/${ROS_DISTRO}/lib/cmake cmake .. -DUSE_VECTORIZE=1 && \
   make -j${NUM_THREADS} && \
   make install && \
-  rm -rf CMakeCache.txt CMakeFiles Makefile cmake_install.cmake example src && \
+#  rm -rf CMakeCache.txt CMakeFiles Makefile cmake_install.cmake example src && \
   chmod -R 777 ./*
 
 RUN set -x &&\
