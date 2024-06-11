@@ -98,10 +98,10 @@ RUN set -x && \
 #  git submodule update -i --recursive && \
   mkdir -p build && \
   cd build && \
-  CMAKE_PREFIX_PATH=/opt/ros/${ROS_DISTRO}/lib/cmake cmake .. -DUSE_VECTORIZE=1 -DCMAKE_BUILD_TYPE=Debug && \
-  make -j${NUM_THREADS} VERBOSE=1 && \
+  CMAKE_PREFIX_PATH=/opt/ros/${ROS_DISTRO}/lib/cmake cmake .. -DUSE_VECTORIZE=1 && \
+  make -j${NUM_THREADS} && \
   make install && \
-#  rm -rf CMakeCache.txt CMakeFiles Makefile cmake_install.cmake example src && \
+  rm -rf CMakeCache.txt CMakeFiles Makefile cmake_install.cmake example src && \
   chmod -R 777 ./*
 
 RUN set -x &&\
