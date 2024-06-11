@@ -53,7 +53,9 @@ public:
     cv::Mat draw_frame();
 
     std::string get_tracking_state();
-
+    
+    int get_tracking_state_int();
+    
     std::vector<cv::KeyPoint> get_keypoints();
 
     bool get_mapping_is_enabled();

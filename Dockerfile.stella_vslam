@@ -28,10 +28,8 @@ RUN set -x && \
   apt-get install -y -qq \
     libyaml-cpp-dev  \ 
   #   libopencv-dev \
-     libeigen3-dev && \
-  : "remove cache" && \
-  apt-get autoremove -y -qq && \
-  rm -rf /var/lib/apt/lists/*
+     libeigen3-dev 
+ 
 
 ARG CMAKE_INSTALL_PREFIX=/usr/local
 ARG NUM_THREADS=10
@@ -91,10 +89,7 @@ RUN set -x && \
   : "stella_vslam dependencies" && \
   apt-get update -y -qq && \
   apt-get install -y -qq \
-    ros-${ROS_DISTRO}-libg2o && \
-  : "remove cache" && \
-  apt-get autoremove -y -qq && \
-  rm -rf /var/lib/apt/lists/*
+    ros-${ROS_DISTRO}-libg2o 
 
 COPY . /stella_vslam
 RUN set -x && \
@@ -103,10 +98,10 @@ RUN set -x && \
 #  git submodule update -i --recursive && \
   mkdir -p build && \
   cd build && \
-  CMAKE_PREFIX_PATH=/opt/ros/${ROS_DISTRO}/lib/cmake cmake .. && \
+  CMAKE_PREFIX_PATH=/opt/ros/${ROS_DISTRO}/lib/cmake cmake .. -DUSE_VECTORIZE=1 && \
   make -j${NUM_THREADS} && \
   make install && \
-  rm -rf CMakeCache.txt CMakeFiles Makefile cmake_install.cmake example src && \
+#  rm -rf CMakeCache.txt CMakeFiles Makefile cmake_install.cmake example src && \
   chmod -R 777 ./*
 
 RUN set -x &&\
@@ -160,11 +155,8 @@ RUN set -x && \
     python3-colcon-common-extensions \
     net-tools &&\
   pip3 install -U \
-    argcomplete && \
-  : "remove cache" && \
-  apt-get autoremove -y -qq && \
-  rm -rf /var/lib/apt/lists/*
-
+    argcomplete 
+    
 RUN apt-get update -y && \
     apt-get install -y nodejs
     

@@ -88,6 +88,11 @@ std::string frame_publisher::get_tracking_state() {
     return state_str;
 }
 
+int frame_publisher::get_tracking_state_int() {
+    std::lock_guard<std::mutex> lock(mtx_);
+    return static_cast<int>(tracking_state_);
+}
+
 std::vector<cv::KeyPoint> frame_publisher::get_keypoints() {
     std::lock_guard<std::mutex> lock(mtx_);
     return curr_keypts_;

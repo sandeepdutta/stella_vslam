@@ -82,7 +82,9 @@ system::system(const std::shared_ptr<config>& cfg, const std::string& vocab_file
     if (camera_->setup_type_ == camera::setup_type_t::Stereo) {
         extractor_right_ = new feature::orb_extractor(orb_params_, min_size, mask_rectangles);
     }
-
+#if defined(USE_CUDA)
+    cuda_orb_extractor_ = cv::cuda::ORB::create(2000,orb_params_->scale_factor_,orb_params_->num_levels_,orb_params_->ini_fast_thr_);
+#endif
     num_grid_cols_ = preprocessing_params["num_grid_cols"].as<unsigned int>(64);
     num_grid_rows_ = preprocessing_params["num_grid_rows"].as<unsigned int>(48);
 
@@ -347,6 +349,33 @@ data::frame system::create_stereo_frame(const cv::Mat& left_img, const cv::Mat& 
 
     // Extract ORB feature
     keypts_.clear();
+#if defined(USE_CUDA)
+    // Upload the images to the GPU
+    cv::cuda::GpuMat gpuImage1, gpuImage2;
+    gpuImage1.upload(img_gray);
+    gpuImage2.upload(right_img_gray);
+    // CUDA streams for parallel processing
+    cv::cuda::Stream stream1, stream2;
+    spdlog::info("Starting ORB Extraction Left & Right");
+    // Detect keypoints and compute descriptors asynchronously for both images
+    cv::cuda::GpuMat keypointsGPU1, descriptorsGPU1, keypointsGPU2, descriptorsGPU2;
+    cuda_orb_extractor_->detectAndComputeAsync(gpuImage1, cv::cuda::GpuMat(), keypointsGPU1, descriptorsGPU1, false, stream1);
+    cuda_orb_extractor_->detectAndComputeAsync(gpuImage2, cv::cuda::GpuMat(), keypointsGPU2, descriptorsGPU2, false, stream2);
+
+    // Wait for the streams to finish
+    stream1.waitForCompletion();
+    stream2.waitForCompletion();
+    spdlog::info("ORB Extraction complete");
+    // Download keypoints and descriptors to host memory
+    std::vector<cv::KeyPoint> keypoints1, keypoints2;
+    cv::Mat descriptors1, descriptors2;
+    cuda_orb_extractor_->convert(keypointsGPU1, keypts_);
+    cuda_orb_extractor_->convert(keypointsGPU2, keypts_right);
+    spdlog::info("Converted keypoints");
+    descriptorsGPU1.download(frm_obs.descriptors_);
+    descriptorsGPU2.download(descriptors_right);
+    spdlog::info("Converted descriptors");
+#else
     std::thread thread_left([this, &frm_obs, &img_gray, &mask]() {
         extractor_left_->extract(img_gray, mask, keypts_, frm_obs.descriptors_);
     });
@@ -355,19 +384,26 @@ data::frame system::create_stereo_frame(const cv::Mat& left_img, const cv::Mat& 
     });
     thread_left.join();
     thread_right.join();
+#endif
     if (keypts_.empty()) {
         spdlog::warn("preprocess: cannot extract any keypoints");
     }
-
+    //spdlog::info("Undistorting");
     // Undistort keypoints
     camera_->undistort_keypoints(keypts_, frm_obs.undist_keypts_);
+    //spdlog::info("Undistorting Complete {} {} {} {}",keypts_.size(),
+    //keypts_right.size(),
+    //frm_obs.descriptors_.total(),
+    //descriptors_right.total());
 
     // Estimate depth with stereo match
     match::stereo stereo_matcher(extractor_left_->image_pyramid_, extractor_right_->image_pyramid_,
                                  keypts_, keypts_right, frm_obs.descriptors_, descriptors_right,
                                  orb_params_->scale_factors_, orb_params_->inv_scale_factors_,
                                  camera_->focal_x_baseline_, camera_->true_baseline_);
+    //spdlog::info("Matcher constructed");
     stereo_matcher.compute(frm_obs.stereo_x_right_, frm_obs.depths_);
+    //spdlog::info("Matcher complete");
 
     // Convert to bearing vector
     camera_->convert_keypoints_to_bearings(frm_obs.undist_keypts_, frm_obs.bearings_);

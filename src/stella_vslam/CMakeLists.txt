@@ -9,6 +9,8 @@ set(tinycolormap_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/3rd/tinycolormap/include)
 # sqlite3
 find_package(SQLite3 REQUIRED)
 
+set(CMAKE_CXX_FLAGS "-ftree-vectorize -march=native -DUSE_VECTORIZE=1")
+
 # g2o
 find_package(g2o REQUIRED
              COMPONENTS
@@ -190,9 +192,7 @@ target_link_libraries(${PROJECT_NAME}
                       Eigen3::Eigen
                       yaml-cpp
                       ${SQLite3_LIBRARIES}
-                      opencv_core
-                      opencv_features2d
-                      opencv_calib3d
+                      ${OpenCV_LIBRARIES}
                       "$<$<BOOL:${USE_ARUCO}>:opencv_aruco>"
                       g2o::core
                       g2o::stuff

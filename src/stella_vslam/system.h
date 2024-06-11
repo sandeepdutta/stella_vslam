@@ -12,7 +12,12 @@
 #include <memory>
 
 #include <opencv2/core/mat.hpp>
-
+#if defined(USE_CUDA)
+#include <opencv2/opencv.hpp>
+#include <opencv2/cudaimgproc.hpp>
+#include <opencv2/cudafeatures2d.hpp>
+#include <opencv2/highgui.hpp>
+#endif
 namespace stella_vslam {
 
 class config;
@@ -246,7 +251,10 @@ private:
     feature::orb_extractor* extractor_right_ = nullptr;
     //! ORB extractor only when used in initializing
     feature::orb_extractor* ini_extractor_left_ = nullptr;
-
+#if defined(USE_CUDA)
+    // ! Single ORB Extractor for CUDA
+    cv::Ptr<cv::cuda::ORB> cuda_orb_extractor_ = nullptr;
+#endif
     //! number of columns of grid to accelerate reprojection matching
     unsigned int num_grid_cols_ = 64;
     //! number of rows of grid to accelerate reprojection matching
