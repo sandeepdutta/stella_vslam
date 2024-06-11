@@ -29,7 +29,11 @@ RUN set -x && \
     libyaml-cpp-dev  \ 
   #   libopencv-dev \
      libeigen3-dev 
+<<<<<<< HEAD
 
+=======
+ 
+>>>>>>> a16403c (first attempt at GPU acceleration)
 
 ARG CMAKE_INSTALL_PREFIX=/usr/local
 ARG NUM_THREADS=10
@@ -98,7 +102,11 @@ RUN set -x && \
 #  git submodule update -i --recursive && \
   mkdir -p build && \
   cd build && \
+<<<<<<< HEAD
   CMAKE_PREFIX_PATH=/opt/ros/${ROS_DISTRO}/lib/cmake cmake .. -DUSE_VECTORIZE=1 -DCMAKE_BUILD_TYPE=Release && \
+=======
+  CMAKE_PREFIX_PATH=/opt/ros/${ROS_DISTRO}/lib/cmake cmake .. -DUSE_VECTORIZE=1 && \
+>>>>>>> a16403c (first attempt at GPU acceleration)
   make -j${NUM_THREADS} && \
   make install && \
 #  rm -rf CMakeCache.txt CMakeFiles Makefile cmake_install.cmake example src && \
