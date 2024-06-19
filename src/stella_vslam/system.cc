@@ -619,6 +619,7 @@ void system::check_reset_request() {
     if (reset_is_requested_) {
         tracker_->reset();
         reset_is_requested_ = false;
+        spdlog::info("Reset Complete");
     }
 }
 

@@ -98,7 +98,7 @@ RUN set -x && \
 #  git submodule update -i --recursive && \
   mkdir -p build && \
   cd build && \
-  CMAKE_PREFIX_PATH=/opt/ros/${ROS_DISTRO}/lib/cmake cmake .. -DUSE_VECTORIZE=1 && \
+  CMAKE_PREFIX_PATH=/opt/ros/${ROS_DISTRO}/lib/cmake cmake .. -DUSE_VECTORIZE=1 -DCMAKE_BUILD_TYPE=Release && \
   make -j${NUM_THREADS} && \
   make install && \
 #  rm -rf CMakeCache.txt CMakeFiles Makefile cmake_install.cmake example src && \
@@ -107,6 +107,15 @@ RUN set -x && \
 RUN set -x &&\
   apt-get update -y && \
   apt-get install -y protobuf-compiler 
+
+#RUN apt-get update -y && \
+#    apt-get install -y bazel && \
+#    cd / && \
+#    git clone https://github.com/protocolbuffers/protobuf.git && \
+#    cd protobuf && \
+#    git submodule update --init --recursive && \
+#    bazel build :protoc :protobuf && \
+#    cp bazel-bin/protoc /usr/local/bin
 
 #ARG SOCKET_PUBLISHER_COMMIT=e2aaf66b27a6477b478bc8e86992907f09f29188
 WORKDIR /tmp

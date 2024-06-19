@@ -560,6 +560,7 @@ void mapping_module::reset() {
     promise_reset_.set_value();
     promise_reset_ = std::promise<void>();
     future_reset_ = std::shared_future<void>();
+    spdlog::info("reset mapping module done");
 }
 
 std::shared_future<void> mapping_module::async_pause() {

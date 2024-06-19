@@ -115,10 +115,12 @@ void tracking_module::reset() {
 }
 
 std::shared_ptr<Mat44_t> tracking_module::feed_frame(data::frame curr_frm) {
+    bool initialized = false;
     // check if pause is requested
     pause_if_requested();
     while (is_paused()) {
         std::this_thread::sleep_for(std::chrono::microseconds(5000));
+        spdlog::info("tracking module is paused");
     }
 
     curr_frm_ = curr_frm;
@@ -126,6 +128,7 @@ std::shared_ptr<Mat44_t> tracking_module::feed_frame(data::frame curr_frm) {
     bool succeeded = false;
     if (tracking_state_ == tracker_state_t::Initializing) {
         succeeded = initialize();
+        initialized = true;
     }
     else {
         std::lock_guard<std::mutex> lock(mtx_stop_keyframe_insertion_);
@@ -173,7 +176,9 @@ std::shared_ptr<Mat44_t> tracking_module::feed_frame(data::frame curr_frm) {
         last_frm_ = curr_frm_;
     }
     SPDLOG_TRACE("tracking_module: finish tracking");
-
+    if (initialized) {
+        spdlog::info("tracking initialized state = {}", succeeded ? "succeeded" : "failed" );
+    }
     return cam_pose_wc;
 }
 
@@ -302,12 +307,14 @@ bool tracking_module::initialize() {
 
     // if map building was failed -> reset the map database
     if (initializer_.get_state() == module::initializer_state_t::Wrong) {
+        spdlog::error("map building was failed. resetting");
         reset();
         return false;
     }
 
     // if initializing was failed -> try to initialize with the next frame
     if (initializer_.get_state() != module::initializer_state_t::Succeeded) {
+        spdlog::error("initializing failed. retrying with the next frame");
         return false;
     }
 
@@ -319,6 +326,7 @@ bool tracking_module::initialize() {
     }
 
     // succeeded
+    spdlog::info("tracking initialized");
     return true;
 }
 
@@ -633,6 +641,7 @@ std::future<void> tracking_module::async_start_keyframe_insertion() {
 
 std::shared_future<void> tracking_module::async_pause() {
     std::lock_guard<std::mutex> lock(mtx_pause_);
+    spdlog::info("pause tracking module");
     pause_is_requested_ = true;
     if (!future_pause_.valid()) {
         future_pause_ = promise_pause_.get_future().share();

@@ -99,9 +99,11 @@ bool initializer::initialize(const camera::setup_type_t setup_type,
     if (state_ == initializer_state_t::Succeeded) {
         init_frm_id_ = curr_frm.id_;
         init_frm_stamp_ = curr_frm.timestamp_;
+        spdlog::info("initialization succeeded: frame {}", curr_frm.id_);
         return true;
     }
     else {
+        spdlog::info("initialization failed: frame {}", curr_frm.id_);
         return false;
     }
 }
