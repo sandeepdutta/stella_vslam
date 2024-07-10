@@ -43,6 +43,7 @@ ENV C_INCLUDE_PATH=${CMAKE_INSTALL_PREFIX}/include:${C_INCLUDE_PATH}
 ENV CPLUS_INCLUDE_PATH=${CMAKE_INSTALL_PREFIX}/include:${CPLUS_INCLUDE_PATH}
 ENV LIBRARY_PATH=${CMAKE_INSTALL_PREFIX}/lib:${LIBRARY_PATH}
 ENV LD_LIBRARY_PATH=${CMAKE_INSTALL_PREFIX}/lib:${LD_LIBRARY_PATH}
+ENV OPENCV_ROOT=/usr/local
 
 ENV NVIDIA_VISIBLE_DEVICES ${NVIDIA_VISIBLE_DEVICES:-all}
 ENV NVIDIA_DRIVER_CAPABILITIES ${NVIDIA_DRIVER_CAPABILITIES:+$NVIDIA_DRIVER_CAPABILITIES,}graphics
@@ -91,8 +92,8 @@ ENV sioclient_DIR=${CMAKE_INSTALL_PREFIX}/lib/cmake/sioclient
 # stella_vslam
 RUN set -x && \
   : "stella_vslam dependencies" && \
-  apt-get update -y -qq && \
-  apt-get install -y -qq \
+  apt-get update  && \
+  apt-get install -y \
     ros-${ROS_DISTRO}-libg2o 
 
 COPY . /stella_vslam
