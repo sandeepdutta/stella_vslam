@@ -67,9 +67,12 @@ if(MSVC)
 else()
     add_compile_options(-Wall -Wextra)
     add_compile_options(
-        "$<$<CONFIG:Debug>:-Og>"
+        "$<$<CONFIG:Debug>:-O3>"
         "$<$<CONFIG:Release>:-O3>"
         "$<$<CONFIG:None>:-O3>")
+    add_compile_options(
+        "$<$<CONFIG:Debug>:-g3>"
+    )
 endif()
 
 set(BUILD_WITH_MARCH_NATIVE OFF CACHE BOOL "Enable architecture-aware optimization")
@@ -107,7 +110,7 @@ find_package(OpenCV REQUIRED)
 if(NOT OpenCV_FOUND)
     message(FATAL_ERROR "OpenCV >= 3.3.1 not found")
 endif()
-message(STATUS "Use OpenCV ${OpenCV_VERSION}")
+message(STATUS "Use OpenCV ${OpenCV_VERSION}:${OpenCV_INSTALL_PATH}:${OpenCV_LIBRARIES}")
 
 # Check aruco module
 set(USE_ARUCO ON CACHE BOOL "Enable aruco")
