@@ -54,6 +54,10 @@ void tracking_module::set_global_optimization_module(global_optimization_module*
     global_optimizer_ = global_optimizer;
 }
 
+int tracking_module::get_state() const{
+    return (int)tracking_state_;
+}
+
 bool tracking_module::request_relocalize_by_pose(const Mat44_t& pose_cw) {
     std::lock_guard<std::mutex> lock(mtx_relocalize_by_pose_request_);
     if (relocalize_by_pose_is_requested_) {

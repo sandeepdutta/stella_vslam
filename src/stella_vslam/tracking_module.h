@@ -58,6 +58,8 @@ public:
     //! Set the global optimization module
     void set_global_optimization_module(global_optimization_module* global_optimizer);
 
+    // get the state of the tracking module
+    int get_state() const;
     //-----------------------------------------
     // interfaces for mapping module and global optimization module
 
