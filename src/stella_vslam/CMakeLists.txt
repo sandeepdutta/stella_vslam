@@ -9,7 +9,7 @@ set(tinycolormap_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/3rd/tinycolormap/include)
 # sqlite3
 find_package(SQLite3 REQUIRED)
 
-set(CMAKE_CXX_FLAGS "-O3 -g3 -ffast-math")
+set(CMAKE_CXX_FLAGS "-O3 -g3")
 
 # g2o
 find_package(g2o REQUIRED
